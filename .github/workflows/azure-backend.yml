@@ -40,5 +40,4 @@ jobs:
           app-name: "porfilio"
           slot-name: "production"
           package: backend
-        run: |
-        "python app.py"
+          startup-command: "gunicorn --bind 0.0.0.0 --timeout 600 app:app"
