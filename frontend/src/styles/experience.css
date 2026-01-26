@@ -1,0 +1,16 @@
+.section {
+padding: var(--space-5);
+border-top: 1px solid var(--border);
+}
+
+.section__title {
+margin: 0;
+font-size: 1.125rem;
+letter-spacing: 0.3px;
+}
+
+.section__text {
+margin: var(--space-2) 0 0;
+color: var(--muted);
+line-height: 1.6;
+}
