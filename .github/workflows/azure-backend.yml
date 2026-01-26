@@ -5,7 +5,7 @@ on:
     branches:
       - main
   workflow_dispatch:
-    
+
 permissions:
   id-token: write
   contents: read
@@ -37,6 +37,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "my-portfolio-db"
+          app-name: "portfolio-db"
           slot-name: "production"
           package: backend
