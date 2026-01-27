@@ -5,12 +5,23 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      use_self_hosted:
+        description: "Run on self-hosted VNet runner"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   id-token: write
   contents: read
 jobs:
   build-and-deploy-backend:
+    # Public runner job (will fail on network-secured apps)
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.use_self_hosted == 'false')
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +31,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11' 
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -40,4 +51,36 @@ jobs:
           app-name: "porfilio"
           slot-name: "production"
           package: backend
-  
+
+  deploy-backend-self-hosted:
+    # Self-hosted runner in VNet for network-secured apps
+    if: github.event_name == 'workflow_dispatch' && inputs.use_self_hosted == 'true'
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_045F4295E19E4E8CB0E5BD75866FBB4C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CB1158904943497E8945FF3E02E57FBB }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_AE8096A3E9054B13B4F0B524432D1574 }}
+
+      - name: Deploy to Azure Web App (self-hosted)
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "porfilio"
+          slot-name: "production"
+          package: backend
