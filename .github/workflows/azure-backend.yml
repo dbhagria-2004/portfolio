@@ -12,7 +12,8 @@ permissions:
 
 jobs:
   deploy-backend:
-    runs-on: self-hosted   # 🔴 THIS IS THE FIX
+    runs-on: ubuntu-latest
+
 
     steps:
       - name: Checkout repository
